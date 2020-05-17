@@ -158,7 +158,6 @@ func main() {
 	if initFunc == "lin" {
 		cb.InitFunc = som.LinInit
 	}
-
 	mapCfg := &som.MapConfig{
 		Grid: grid,
 		Cb:   cb,

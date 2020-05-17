@@ -106,7 +106,7 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 
 	// function to scale the coord grid to something visible
 	const MUL = 50.0
-	const OFF = 10.0
+	const OFF = 20.0
 	scale := func(x float64) float64 { return MUL*x + OFF }
 
 	svgElem := svgElement{
@@ -132,6 +132,7 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 		x := scale(coord.At(0, 0))
 		y := scale(coord.At(1, 0))
 		// hexagon has a different yOffset
+		var textOffsetX, textOffsetY float64
 		switch uShape {
 		case "hexagon":
 			{
@@ -139,13 +140,15 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 				yBigOffset := math.Tan(math.Pi/6.0) * MUL
 				ySmallOffset := yBigOffset / 2.0
 				// draw a hexagon around the current coord
-				polygonCoords += fmt.Sprintf("%f,%f ", x+xOffset, y+ySmallOffset)
-				polygonCoords += fmt.Sprintf("%f,%f ", x, y+yBigOffset)
-				polygonCoords += fmt.Sprintf("%f,%f ", x-xOffset, y+ySmallOffset)
-				polygonCoords += fmt.Sprintf("%f,%f ", x-xOffset, y-ySmallOffset)
-				polygonCoords += fmt.Sprintf("%f,%f ", x, y-yBigOffset)
-				polygonCoords += fmt.Sprintf("%f,%f ", x+xOffset, y-ySmallOffset)
-				polygonCoords += fmt.Sprintf("%f,%f ", x+xOffset, y+ySmallOffset)
+				polygonCoords += fmt.Sprintf("%f,%f ", OFF+x+xOffset, OFF+y+ySmallOffset)
+				polygonCoords += fmt.Sprintf("%f,%f ", OFF+x, OFF+y+yBigOffset)
+				polygonCoords += fmt.Sprintf("%f,%f ", OFF+x-xOffset, OFF+y+ySmallOffset)
+				polygonCoords += fmt.Sprintf("%f,%f ", OFF+x-xOffset, OFF+y-ySmallOffset)
+				polygonCoords += fmt.Sprintf("%f,%f ", OFF+x, OFF+y-yBigOffset)
+				polygonCoords += fmt.Sprintf("%f,%f ", OFF+x+xOffset, OFF+y-ySmallOffset)
+				polygonCoords += fmt.Sprintf("%f,%f ", OFF+x+xOffset, OFF+y+ySmallOffset)
+				textOffsetX = 1.25 * OFF
+				textOffsetY = 0.75 * OFF
 			}
 		default:
 			{
@@ -157,6 +160,9 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 				polygonCoords += fmt.Sprintf("%f,%f ", x-xOffset, y-yOffset)
 				polygonCoords += fmt.Sprintf("%f,%f ", x-xOffset, y+yOffset)
 				polygonCoords += fmt.Sprintf("%f,%f ", x+xOffset, y+yOffset)
+
+				textOffsetX = 0.5 * OFF
+				textOffsetY = -0.25 * OFF
 			}
 		}
 
@@ -168,8 +174,8 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 		// print class number
 		if classFound {
 			svgElem.Polygons[row*2+1] = textElement{
-				X:     x - 0.25*MUL,
-				Y:     y + 0.25*MUL,
+				X:     textOffsetX + x - 0.25*MUL,
+				Y:     textOffsetY + y + 0.25*MUL,
 				Text:  fmt.Sprintf("%d", classes[row]),
 				Style: fmt.Sprintf("fill:rgb(%d,%d,%d);", (r+128)%255, (g+128)%255, (b+128)%255),
 			}

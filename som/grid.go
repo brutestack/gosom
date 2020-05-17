@@ -111,6 +111,12 @@ func GridSize(data *mat.Dense, uShape string) ([]int, error) {
 	return []int{xDim, yDim}, nil
 }
 
+// AsIsInit returns codebook parameter as is
+func AsIsInit(codebook *mat.Dense, dims []int) (*mat.Dense, error) {
+
+	return codebook, nil
+}
+
 // RandInit returns a matrix initialized to uniformly distributed random values
 // in each column in range between [max, min] where max and min are maximum and minmum values
 // in particular matrix column. The returned matrix has product(dims) number of rows and
