@@ -1,4 +1,4 @@
-module github.com/milosgajdos/gosom
+module github.com/brutestack/gosom
 
 go 1.13
 

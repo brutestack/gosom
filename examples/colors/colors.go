@@ -13,9 +13,9 @@ import (
 	"image/jpeg"
 	"image/png"
 
-	"github.com/milosgajdos/gosom/pkg/dataset"
-	"github.com/milosgajdos/gosom/pkg/utils"
-	"github.com/milosgajdos/gosom/som"
+	"github.com/brutestack/gosom/pkg/dataset"
+	"github.com/brutestack/gosom/pkg/utils"
+	"github.com/brutestack/gosom/som"
 	"gonum.org/v1/gonum/mat"
 )
 

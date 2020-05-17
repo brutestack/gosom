@@ -36,10 +36,23 @@ type textElement struct {
 	XMLName xml.Name `xml:"text"`
 	X       float64  `xml:"x,attr"`
 	Y       float64  `xml:"y,attr"`
+	Style   string   `xml:"style,attr"`
 	Text    string   `xml:",innerxml"`
 }
 
 var colors = [][]int{{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 255, 0}, {255, 0, 255}, {0, 255, 255}}
+
+func MakeColors(colorCount int) {
+	maxColor := colorCount - 1
+	colors = make([][]int, colorCount)
+	for i := 0; i < colorCount; i++ {
+		colors[i] = []int{
+			255 * (maxColor - i) / maxColor,
+			255 * i / maxColor,
+			0,
+		}
+	}
+}
 
 // UMatrixSVG creates an SVG representation of the U-Matrix of the given codebook.
 // It accepts the following parameters:
@@ -155,9 +168,10 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 		// print class number
 		if classFound {
 			svgElem.Polygons[row*2+1] = textElement{
-				X:    x - 0.25*MUL,
-				Y:    y + 0.25*MUL,
-				Text: fmt.Sprintf("%d", classes[row]),
+				X:     x - 0.25*MUL,
+				Y:     y + 0.25*MUL,
+				Text:  fmt.Sprintf("%d", classes[row]),
+				Style: fmt.Sprintf("fill:rgb(%d,%d,%d);", (r+128)%255, (g+128)%255, (b+128)%255),
 			}
 		}
 	}

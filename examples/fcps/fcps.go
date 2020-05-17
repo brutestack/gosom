@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/milosgajdos/gosom/pkg/dataset"
-	"github.com/milosgajdos/gosom/pkg/utils"
-	"github.com/milosgajdos/gosom/som"
+	"github.com/brutestack/gosom/pkg/dataset"
+	"github.com/brutestack/gosom/pkg/utils"
+	"github.com/brutestack/gosom/som"
 )
 
 const (
@@ -47,6 +47,8 @@ var (
 	iters int
 	// NeighbFuncs maps neighbourhood functions to their implemenbtations
 	NeighbFuncs map[string]som.NeighbFunc
+	// Init function: rand, lin
+	initFunc string
 )
 
 func init() {
@@ -63,6 +65,7 @@ func init() {
 	flag.StringVar(&umatrix, "umatrix", "", "Path to u-matrix output visualization")
 	flag.StringVar(&output, "output", "", "Path to store trained SOM model")
 	flag.StringVar(&training, "training", "seq", "SOM training method")
+	flag.StringVar(&initFunc, "init", "rand", "init function (rand/lin)")
 	flag.IntVar(&iters, "iters", 1000, "Number of training iterations")
 	// disable timestamps and set prefix
 	log.SetFlags(0)
@@ -104,6 +107,13 @@ func saveUMatrix(m *som.Map, format, title, path string, c *som.MapConfig, d *da
 	}
 	defer file.Close()
 
+	maxClass := 0
+	for _, v := range d.Classes {
+		if v > maxClass {
+			maxClass = v
+		}
+	}
+	som.MakeColors(maxClass + 1)
 	return m.UMatrix(file, d.Data, d.Classes, format, title)
 }
 
@@ -145,6 +155,10 @@ func main() {
 		Dim:      dim,
 		InitFunc: som.RandInit,
 	}
+	if initFunc == "lin" {
+		cb.InitFunc = som.LinInit
+	}
+
 	mapCfg := &som.MapConfig{
 		Grid: grid,
 		Cb:   cb,
