@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -41,6 +42,8 @@ var (
 	umatrix string
 	// path to saved model
 	output string
+	// path to saved unit class map
+	outputUcls string
 	// training method: seq, batch
 	training string
 	// number of training iterations
@@ -64,6 +67,7 @@ func init() {
 	flag.StringVar(&ldecay, "ldecay", "lin", "Learning rate decay strategy")
 	flag.StringVar(&umatrix, "umatrix", "", "Path to u-matrix output visualization")
 	flag.StringVar(&output, "output", "", "Path to store trained SOM model")
+	flag.StringVar(&outputUcls, "output_ucls", "", "Path to store trained SOM models unit class map")
 	flag.StringVar(&training, "training", "seq", "SOM training method")
 	flag.StringVar(&initFunc, "init", "rand", "init function (rand/lin)")
 	flag.IntVar(&iters, "iters", 1000, "Number of training iterations")
@@ -115,6 +119,27 @@ func saveUMatrix(m *som.Map, format, title, path string, c *som.MapConfig, d *da
 	}
 	som.MakeColors(maxClass + 1)
 	return m.UMatrix(file, d.Data, d.Classes, format, title)
+}
+
+func saveUcls(m *som.Map, d *dataset.DataSet, path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	ucls, err := m.UnitClasses(d.Data, d.Classes)
+	if err != nil {
+		return err
+	}
+
+	if dump, err := json.MarshalIndent(&ucls, "", " "); err != nil {
+		return err
+	} else if _, err := file.Write(dump); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func main() {
@@ -193,6 +218,13 @@ func main() {
 	if output != "" {
 		log.Printf("Saving trained model to %s", output)
 		if err := saveModel(m, "gonum", output); err != nil {
+			fmt.Fprintf(os.Stderr, "\nERROR: %s\n", err)
+			os.Exit(1)
+		}
+	}
+	if outputUcls != "" {
+		log.Printf("Saving unit classes to %s", outputUcls)
+		if err := saveUcls(m, ds, outputUcls); err != nil {
 			fmt.Fprintf(os.Stderr, "\nERROR: %s\n", err)
 			os.Exit(1)
 		}

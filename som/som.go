@@ -87,6 +87,39 @@ func (m *Map) MarshalTo(format string, w io.Writer) (int, error) {
 	return 0, fmt.Errorf("unsupported format: %s", format)
 }
 
+// UnitClasses returns map that contains most frequent BMU class of all of its classes
+func (m Map) UnitClasses(data *mat.Dense, classMap map[int]int) (map[int]int, error) {
+	// map that contains most frequent BMU class of all of its classes
+	bmuClassMap := make(map[int]int)
+	// only do this if we supply data class map
+	if len(classMap) > 0 {
+		bmuClasses, err := m.mapBMUclasses(data, classMap)
+		if err != nil {
+			return nil, err
+		}
+
+		// find the most frequent class for each codebook vector
+		for cbi, class := range bmuClasses {
+			sort.Ints(class)
+			count := 1
+			currentIndex := 0
+			for i := 1; i < len(class); i++ {
+				if class[i] == class[currentIndex] {
+					count++
+				} else {
+					count--
+				}
+				if count == 0 {
+					currentIndex = i
+					count = 1
+				}
+			}
+			bmuClassMap[cbi] = class[currentIndex]
+		}
+	}
+	return bmuClassMap, nil
+}
+
 // UMatrix generates SOM u-matrix in a given format and writes the output to w.
 // At the moment only SVG format is supported. It fails with error if the write to w fails.
 func (m Map) UMatrix(w io.Writer, data *mat.Dense, classMap map[int]int, format, title string) error {
@@ -94,32 +127,9 @@ func (m Map) UMatrix(w io.Writer, data *mat.Dense, classMap map[int]int, format,
 	case "svg":
 		{
 			// map that contains most frequent BMU class of all of its classes
-			bmuClassMap := make(map[int]int)
-			// only do this if we supply data class map
-			if len(classMap) > 0 {
-				bmuClasses, err := m.mapBMUclasses(data, classMap)
-				if err != nil {
-					return err
-				}
-
-				// find the most frequent class for each codebook vector
-				for cbi, class := range bmuClasses {
-					sort.Ints(class)
-					count := 1
-					currentIndex := 0
-					for i := 1; i < len(class); i++ {
-						if class[i] == class[currentIndex] {
-							count++
-						} else {
-							count--
-						}
-						if count == 0 {
-							currentIndex = i
-							count = 1
-						}
-					}
-					bmuClassMap[cbi] = class[currentIndex]
-				}
+			bmuClassMap, err := m.UnitClasses(data, classMap)
+			if err != nil {
+				return err
 			}
 
 			return UMatrixSVG(m.codebook, m.grid.size, m.grid.ushape, title, w, bmuClassMap)
