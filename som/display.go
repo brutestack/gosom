@@ -103,6 +103,7 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 			minDistance = avgDistance
 		}
 	}
+	deltaDistance := maxDistance - minDistance
 
 	// function to scale the coord grid to something visible
 	const MUL = 50.0
@@ -124,7 +125,11 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 		} else {
 			colorMask = colors[classes[row]%len(colors)]
 		}
-		colorMul := 1.0 - (umatrix[row]-minDistance)/(maxDistance-minDistance)
+
+		colorMul := 1.0
+		if deltaDistance > 0 {
+			colorMul -= (umatrix[row] - minDistance) / deltaDistance
+		}
 		r := int(colorMul * float64(colorMask[0]))
 		g := int(colorMul * float64(colorMask[1]))
 		b := int(colorMul * float64(colorMask[2]))

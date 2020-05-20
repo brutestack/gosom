@@ -12,7 +12,7 @@ import (
 func TestUMatrixSVG(t *testing.T) {
 	assert := assert.New(t)
 
-	const svg = `<h1>Done</h1><svg width="120" height="120"><polygon points="35.000000,24.433757 10.000000,38.867513 -15.000000,24.433757 -15.000000,-4.433757 10.000000,-18.867513 35.000000,-4.433757 35.000000,24.433757 " style="fill:rgb(255,255,255);stroke:black;stroke-width:1"></polygon><polygon points="60.000000,67.735027 35.000000,82.168784 10.000000,67.735027 10.000000,38.867513 35.000000,24.433757 60.000000,38.867513 60.000000,67.735027 " style="fill:rgb(0,0,0);stroke:black;stroke-width:1"></polygon><polygon points="85.000000,24.433757 60.000000,38.867513 35.000000,24.433757 35.000000,-4.433757 60.000000,-18.867513 85.000000,-4.433757 85.000000,24.433757 " style="fill:rgb(0,0,0);stroke:black;stroke-width:1"></polygon><polygon points="110.000000,67.735027 85.000000,82.168784 60.000000,67.735027 60.000000,38.867513 85.000000,24.433757 110.000000,38.867513 110.000000,67.735027 " style="fill:rgb(255,255,255);stroke:black;stroke-width:1"></polygon></svg>`
+	const svg = `<h1>Done</h1><svg width="140" height="140"><polygon points="65.000000,54.433757 40.000000,68.867513 15.000000,54.433757 15.000000,25.566243 40.000000,11.132487 65.000000,25.566243 65.000000,54.433757 " style="fill:rgb(255,255,255);stroke:black;stroke-width:1"></polygon><polygon points="90.000000,97.735027 65.000000,112.168784 40.000000,97.735027 40.000000,68.867513 65.000000,54.433757 90.000000,68.867513 90.000000,97.735027 " style="fill:rgb(0,0,0);stroke:black;stroke-width:1"></polygon><polygon points="115.000000,54.433757 90.000000,68.867513 65.000000,54.433757 65.000000,25.566243 90.000000,11.132487 115.000000,25.566243 115.000000,54.433757 " style="fill:rgb(0,0,0);stroke:black;stroke-width:1"></polygon><polygon points="140.000000,97.735027 115.000000,112.168784 90.000000,97.735027 90.000000,68.867513 115.000000,54.433757 140.000000,68.867513 140.000000,97.735027 " style="fill:rgb(255,255,255);stroke:black;stroke-width:1"></polygon></svg>`
 
 	mUnits := mat.NewDense(4, 2, []float64{
 		0.0, 0.0,
@@ -37,7 +37,7 @@ func TestUMatrixSVG(t *testing.T) {
 func TestUMatrixSVGWithClusters(t *testing.T) {
 	assert := assert.New(t)
 
-	const svg = `<h1>Done</h1><svg width="70" height="120"><polygon points="35.000000,35.000000 35.000000,-15.000000 -15.000000,-15.000000 -15.000000,35.000000 35.000000,35.000000 " style="fill:rgb(0,0,0);stroke:black;stroke-width:1"></polygon><text x="-2.5" y="22.5">0</text><polygon points="35.000000,85.000000 35.000000,35.000000 -15.000000,35.000000 -15.000000,85.000000 35.000000,85.000000 " style="fill:rgb(0,0,0);stroke:black;stroke-width:1"></polygon><text x="-2.5" y="72.5">1</text></svg>`
+	const svg = `<h1>Done</h1><svg width="90" height="140"><polygon points="45.000000,45.000000 45.000000,-5.000000 -5.000000,-5.000000 -5.000000,45.000000 45.000000,45.000000 " style="fill:rgb(255,0,0);stroke:black;stroke-width:1"></polygon><text x="17.5" y="27.5" style="fill:rgb(128,128,128);">0</text><polygon points="45.000000,95.000000 45.000000,45.000000 -5.000000,45.000000 -5.000000,95.000000 45.000000,95.000000 " style="fill:rgb(0,255,0);stroke:black;stroke-width:1"></polygon><text x="17.5" y="77.5" style="fill:rgb(128,128,128);">1</text></svg>`
 
 	mUnits := mat.NewDense(2, 2, []float64{
 		0.0, 0.0,
