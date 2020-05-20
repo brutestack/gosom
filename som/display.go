@@ -23,12 +23,14 @@ type polygon struct {
 	XMLName xml.Name `xml:"polygon"`
 	Points  []byte   `xml:"points,attr"`
 	Style   string   `xml:"style,attr"`
+	Id      string   `xml:"id,attr"`
 }
 
 type svgElement struct {
-	XMLName  xml.Name `xml:"svg"`
-	Width    float64  `xml:"width,attr"`
-	Height   float64  `xml:"height,attr"`
+	XMLName xml.Name `xml:"svg"`
+	// Width    float64  `xml:"width,attr"`
+	// Height   float64  `xml:"height,attr"`
+	ViewBox  string `xml:"viewBox,attr"`
 	Polygons []interface{}
 }
 
@@ -66,7 +68,10 @@ func MakeColors(colorCount int) {
 func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io.Writer, classes map[int]int) error {
 	xmlEncoder := xml.NewEncoder(writer)
 	// array to hold the xml elements
-	elems := []interface{}{h1{Title: title}}
+	elems := []interface{}{}
+	if title != "" {
+		elems = append(elems, h1{Title: title})
+	}
 
 	rows, _ := codebook.Dims()
 	distMat, err := DistanceMx("euclidean", codebook)
@@ -110,9 +115,9 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 	const OFF = 20.0
 	scale := func(x float64) float64 { return MUL*x + OFF }
 
+	viewBox := fmt.Sprintf("0 0 %f %f", float64(dims[1])*MUL+2*OFF, float64(dims[0])*MUL+2*OFF)
 	svgElem := svgElement{
-		Width:    float64(dims[1])*MUL + 2*OFF,
-		Height:   float64(dims[0])*MUL + 2*OFF,
+		ViewBox:  viewBox,
 		Polygons: make([]interface{}, rows*2),
 	}
 	for row := 0; row < rows; row++ {
@@ -174,6 +179,7 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 		svgElem.Polygons[row*2] = polygon{
 			Points: []byte(polygonCoords),
 			Style:  fmt.Sprintf("fill:rgb(%d,%d,%d);stroke:black;stroke-width:1", r, g, b),
+			Id:     fmt.Sprintf("poly%d", row),
 		}
 
 		// print class number
