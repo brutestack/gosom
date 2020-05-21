@@ -26,6 +26,15 @@ type polygon struct {
 	Id      string   `xml:"id,attr"`
 }
 
+type line struct {
+	XMLName xml.Name `xml:"line"`
+	X1      float64  `xml:"x1,attr"`
+	Y1      float64  `xml:"y1,attr"`
+	X2      float64  `xml:"x2,attr"`
+	Y2      float64  `xml:"y2,attr"`
+	Style   string   `xml:"style,attr"`
+}
+
 type svgElement struct {
 	XMLName xml.Name `xml:"svg"`
 	// Width    float64  `xml:"width,attr"`
@@ -40,6 +49,7 @@ type textElement struct {
 	Y       float64  `xml:"y,attr"`
 	Style   string   `xml:"style,attr"`
 	Text    string   `xml:",innerxml"`
+	Id      string   `xml:"id,attr"`
 }
 
 var colors = [][]int{{255, 0, 0}, {0, 255, 0}, {0, 0, 255}, {255, 255, 0}, {255, 0, 255}, {0, 255, 255}}
@@ -118,7 +128,7 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 	viewBox := fmt.Sprintf("0 0 %f %f", float64(dims[1])*MUL+2*OFF, float64(dims[0])*MUL+2*OFF)
 	svgElem := svgElement{
 		ViewBox:  viewBox,
-		Polygons: make([]interface{}, rows*2),
+		Polygons: make([]interface{}, rows*2+8),
 	}
 	for row := 0; row < rows; row++ {
 		coord := coords.RowView(row)
@@ -189,8 +199,103 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 				Y:     textOffsetY + y + 0.25*MUL,
 				Text:  fmt.Sprintf("%d", classes[row]),
 				Style: fmt.Sprintf("fill:rgb(%d,%d,%d);", (r+128)%255, (g+128)%255, (b+128)%255),
+				Id:    fmt.Sprintf("text%d", row),
 			}
 		}
+	}
+
+	yStep := scale(coords.RowView(1).At(1, 0)) - scale(coords.RowView(0).At(1, 0))
+	xStep := scale(coords.RowView(dims[0]).At(0, 0)) - scale(coords.RowView(0).At(0, 0))
+	lineStyle := "stroke:black;stroke-width:3"
+	coord := coords.RowView(0)
+	x1 := scale(coord.At(0, 0))
+	y1 := scale(coord.At(1, 0))
+	coord = coords.RowView(rows - 1)
+	x2 := scale(coord.At(0, 0))
+	y2 := scale(coord.At(1, 0))
+
+	svgElem.Polygons[len(svgElem.Polygons)-1] = line{
+		X1:    OFF + x1,
+		Y1:    OFF + y1,
+		X2:    OFF + x2,
+		Y2:    OFF + y2,
+		Style: lineStyle,
+	}
+
+	coord = coords.RowView(dims[0] - 1)
+	x1 = scale(coord.At(0, 0))
+	y1 = scale(coord.At(1, 0))
+	coord = coords.RowView(rows - dims[0])
+	x2 = scale(coord.At(0, 0))
+	y2 = scale(coord.At(1, 0))
+
+	svgElem.Polygons[len(svgElem.Polygons)-2] = line{
+		X1:    OFF + x1,
+		Y1:    OFF + y1,
+		X2:    OFF + x2,
+		Y2:    OFF + y2,
+		Style: lineStyle,
+	}
+
+	coord = coords.RowView(dims[0]/2 - 1)
+	x1 = scale(coord.At(0, 0))
+	y1 = scale(coord.At(1, 0)) + yStep/2
+	coord = coords.RowView(rows - dims[0]/2 - 1)
+	x2 = scale(coord.At(0, 0))
+	y2 = scale(coord.At(1, 0)) + yStep/2
+
+	aLine := line{
+		X1:    OFF + x1,
+		Y1:    OFF + y1,
+		X2:    OFF + x2,
+		Y2:    OFF + y2,
+		Style: lineStyle,
+	}
+	svgElem.Polygons[len(svgElem.Polygons)-3] = aLine
+
+	coord = coords.RowView(0)
+	x1 = scale(coord.At(0, 0)) + xStep*float64(dims[1]-1)/2
+	y1 = scale(coord.At(1, 0))
+	x2 = x1
+	coord = coords.RowView(dims[0] - 1)
+	y2 = scale(coord.At(1, 0))
+
+	bLine := line{
+		X1:    OFF + x1,
+		Y1:    OFF + y1,
+		X2:    OFF + x2,
+		Y2:    OFF + y2,
+		Style: lineStyle,
+	}
+	svgElem.Polygons[len(svgElem.Polygons)-4] = bLine
+
+	svgElem.Polygons[len(svgElem.Polygons)-5] = line{
+		X1:    aLine.X1,
+		Y1:    aLine.Y1,
+		X2:    bLine.X1,
+		Y2:    bLine.Y1,
+		Style: lineStyle,
+	}
+	svgElem.Polygons[len(svgElem.Polygons)-6] = line{
+		X1:    bLine.X1,
+		Y1:    bLine.Y1,
+		X2:    aLine.X2,
+		Y2:    aLine.Y2,
+		Style: lineStyle,
+	}
+	svgElem.Polygons[len(svgElem.Polygons)-7] = line{
+		X1:    aLine.X2,
+		Y1:    aLine.Y2,
+		X2:    bLine.X2,
+		Y2:    bLine.Y2,
+		Style: lineStyle,
+	}
+	svgElem.Polygons[len(svgElem.Polygons)-8] = line{
+		X1:    bLine.X2,
+		Y1:    bLine.Y2,
+		X2:    aLine.X1,
+		Y2:    aLine.Y1,
+		Style: lineStyle,
 	}
 
 	elems = append(elems, svgElem)
