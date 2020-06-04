@@ -123,6 +123,10 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 	// function to scale the coord grid to something visible
 	const MUL = 50.0
 	const OFF = 20.0
+	lineOff := OFF
+	if uShape != "hexagon" {
+		lineOff = 0
+	}
 	scale := func(x float64) float64 { return MUL*x + OFF }
 
 	viewBox := fmt.Sprintf("0 0 %f %f", float64(dims[1])*MUL+2*OFF, float64(dims[0])*MUL+2*OFF)
@@ -215,10 +219,10 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 	y2 := scale(coord.At(1, 0))
 
 	svgElem.Polygons[len(svgElem.Polygons)-1] = line{
-		X1:    OFF + x1,
-		Y1:    OFF + y1,
-		X2:    OFF + x2,
-		Y2:    OFF + y2,
+		X1:    lineOff + x1,
+		Y1:    lineOff + y1,
+		X2:    lineOff + x2,
+		Y2:    lineOff + y2,
 		Style: lineStyle,
 	}
 
@@ -230,10 +234,10 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 	y2 = scale(coord.At(1, 0))
 
 	svgElem.Polygons[len(svgElem.Polygons)-2] = line{
-		X1:    OFF + x1,
-		Y1:    OFF + y1,
-		X2:    OFF + x2,
-		Y2:    OFF + y2,
+		X1:    lineOff + x1,
+		Y1:    lineOff + y1,
+		X2:    lineOff + x2,
+		Y2:    lineOff + y2,
 		Style: lineStyle,
 	}
 
@@ -245,10 +249,10 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 	y2 = scale(coord.At(1, 0)) + yStep/2
 
 	aLine := line{
-		X1:    OFF + x1,
-		Y1:    OFF + y1,
-		X2:    OFF + x2,
-		Y2:    OFF + y2,
+		X1:    lineOff + x1,
+		Y1:    lineOff + y1,
+		X2:    lineOff + x2,
+		Y2:    lineOff + y2,
 		Style: lineStyle,
 	}
 	svgElem.Polygons[len(svgElem.Polygons)-3] = aLine
@@ -261,10 +265,10 @@ func UMatrixSVG(codebook *mat.Dense, dims []int, uShape, title string, writer io
 	y2 = scale(coord.At(1, 0))
 
 	bLine := line{
-		X1:    OFF + x1,
-		Y1:    OFF + y1,
-		X2:    OFF + x2,
-		Y2:    OFF + y2,
+		X1:    lineOff + x1,
+		Y1:    lineOff + y1,
+		X2:    lineOff + x2,
+		Y2:    lineOff + y2,
 		Style: lineStyle,
 	}
 	svgElem.Polygons[len(svgElem.Polygons)-4] = bLine
