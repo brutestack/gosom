@@ -3,9 +3,9 @@ package som
 import (
 	"fmt"
 	"io"
+	"math"
 	"math/rand"
 	"runtime"
-	"sort"
 	"sync"
 	"time"
 
@@ -100,21 +100,54 @@ func (m Map) UnitClasses(data *mat.Dense, classMap map[int]int) (map[int]int, er
 
 		// find the most frequent class for each codebook vector
 		for cbi, class := range bmuClasses {
-			sort.Ints(class)
-			count := 1
-			currentIndex := 0
-			for i := 1; i < len(class); i++ {
-				if class[i] == class[currentIndex] {
-					count++
+			if len(class) <= 0 {
+				continue
+			}
+
+			classCount := make(map[int]int)
+			for i := 0; i < len(class); i++ {
+				if count, ok := classCount[class[i]]; !ok {
+					classCount[class[i]] = 1
 				} else {
-					count--
-				}
-				if count == 0 {
-					currentIndex = i
-					count = 1
+					classCount[class[i]] = count + 1
 				}
 			}
-			bmuClassMap[cbi] = class[currentIndex]
+			maxCount := -1
+			maxClass := -1
+			for c, count := range classCount {
+				if maxCount < count {
+					maxCount = count
+					maxClass = c
+				}
+			}
+			bmuClassMap[cbi] = maxClass
+		}
+	}
+	return bmuClassMap, nil
+}
+
+// UnitMeanClasses returns map that contains BMU mean class of all of its classes
+func (m Map) UnitMeanClasses(data *mat.Dense, classMap map[int]int) (map[int]int, error) {
+	// map that contains most frequent BMU class of all of its classes
+	bmuClassMap := make(map[int]int)
+	// only do this if we supply data class map
+	if len(classMap) > 0 {
+		bmuClasses, err := m.mapBMUclasses(data, classMap)
+		if err != nil {
+			return nil, err
+		}
+
+		// find the most frequent class for each codebook vector
+		for cbi, class := range bmuClasses {
+			if len(class) <= 0 {
+				continue
+			}
+
+			meanClass := float64(0)
+			for i := 0; i < len(class); i++ {
+				meanClass += float64(class[i]) / float64(len(class))
+			}
+			bmuClassMap[cbi] = int(math.Round(meanClass))
 		}
 	}
 	return bmuClassMap, nil

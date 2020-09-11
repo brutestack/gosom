@@ -118,7 +118,13 @@ func saveUMatrix(m *som.Map, format, title, path string, c *som.MapConfig, d *da
 		}
 	}
 	som.MakeColors(maxClass + 1)
-	return m.UMatrix(file, d.Data, d.Classes, format, title)
+	file.Write([]byte("<html><div style=\"width:50%; height=50%; position: absolute;\">"))
+	if err = m.UMatrix(file, d.Data, d.Classes, format, title); err != nil {
+		return err
+	}
+	file.Write([]byte("</div></html>"))
+	return nil
+
 }
 
 func saveUcls(m *som.Map, d *dataset.DataSet, path string) error {
@@ -171,7 +177,7 @@ func main() {
 	}
 	_, dim := data.Dims()
 	// SOM configuration
-	grid := &som.GridConfig{
+	gridCfg := &som.GridConfig{
 		Size:   mdims,
 		Type:   grid,
 		UShape: ushape,
@@ -184,7 +190,7 @@ func main() {
 		cb.InitFunc = som.LinInit
 	}
 	mapCfg := &som.MapConfig{
-		Grid: grid,
+		Grid: gridCfg,
 		Cb:   cb,
 	}
 	// create new SOM
